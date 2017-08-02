@@ -47,3 +47,9 @@ Simply set up virtualenv paths and switch to your python environment::
   workon gML
 
 and keep on hacking!
+
+Tutorials and References
+========================
+
+- `Keras Tutorial @ ATLAS Machine Learning Workshop (June 2017) <https://indico.cern.ch/event/630665/contributions/2605129/>`_
+- `Michael Kagan's Keras setup on CERN LXPLUS <https://indico.cern.ch/event/615994/page/10686-lxplus-software-setup>`_
