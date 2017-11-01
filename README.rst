@@ -48,6 +48,18 @@ Simply set up virtualenv paths and switch to your python environment::
 
 and keep on hacking!
 
+Test GPU
+--------
+
+Mac OSX
+~~~~~~~
+
+I have a mid-2014 Mac with an NVidia GPU. After following all instructions, I can run it with the old backend::
+
+  THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python test.py
+
+
+
 Tutorials and References
 ========================
 
