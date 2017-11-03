@@ -3,6 +3,19 @@ giMLi
 
 This repository is for the projects in gFEX with Machine Learning applications. At the moment, it is somewhat unofficial and we are tossing around some interesting ideas.
 
+Running
+=======
+
+To generate an HDF5 file from the gFEX ntuples we produce right now, you can run::
+
+  python gFEXtuple2hdf5.py user.gstark.DSID.OUTPUT_vXX/*.root --output user.gstark.DSID.OUTPUT_vXX.hdf5
+
+To run on this generated HDF5 file, you can use::
+
+  python train_pileup.py user.gstark.DSID.OUTPUT_vXX.hdf5
+
+Edit `train_pileup.py <train_pileup.py>`_ to switch between a "simplified" neural network and the non-simplified version, as well as determining whether to normalize (default) the data or not between ``[0,1]``.
+
 Installing
 ==========
 
@@ -57,8 +70,6 @@ Mac OSX
 I have a mid-2014 Mac with an NVidia GPU. After following all instructions, I can run it with the old backend::
 
   THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python test.py
-
-
 
 Tutorials and References
 ========================
