@@ -67,9 +67,7 @@ Test GPU
 Mac OSX
 ~~~~~~~
 
-I have a mid-2014 Mac with an NVidia GPU. After following all instructions, I can run it with the old backend::
-
-  THEANO_FLAGS=mode=FAST_RUN,device=gpu,floatX=float32 python test.py
+I have a mid-2014 Mac with an NVidia GPU. After following all instructions, I can run it just fine on my GPU. If you don't have a gpu, replace ``tensorflow-gpu`` with ``tensorflow`` in ``requirements.txt``.
 
 Tutorials and References
 ========================

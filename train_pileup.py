@@ -4,17 +4,11 @@ np.random.seed(7)
 import h5py
 
 import os
-os.environ['THEANO_FLAGS'] = "mode=FAST_RUN,device=cuda,force_device=True"
+# you know you have a GPU and you've verified it works? Uncomment the next line
+# os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from keras.models import Sequential
 from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
-from keras.wrappers.scikit_learn import KerasRegressor
-
-import argparse
-parser = argparse.ArgumentParser(description='Run ML model')
-parser.add_argument('file', type=str, help='File to process', default='input.hdf5')
-
-args = parser.parse_args()
 
 def baseline_model(simple=True):
   model = Sequential()
@@ -22,9 +16,7 @@ def baseline_model(simple=True):
     model.add(Dense(32*24, input_dim=32*24, activation='relu', kernel_initializer='normal'))
     model.add(Dense(256, activation='relu', kernel_initializer='normal'))
   else:
-    # ValueError: Input 0 is incompatible with layer conv2d_1: expected ndim=4, found ndim=3
-    #	gotta use (24, 32, 1) and not (24, 32) -- WHY?
-    model.add(Conv2D(32, (5, 5), input_shape=(24, 32, 1), activation='relu'))
+    model.add(Conv2D(32, (3, 3), input_shape=(24, 32, 1), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2, 2)))
     model.add(Dropout(0.2))
     model.add(Flatten())
@@ -53,17 +45,20 @@ def get_data(filename, flattened_input=True, normalize=True):
 
   return (gTowerEt, offlineRho)
 
-# Simple: Dense layers, flattened (N, -1) input
-# Non-Simple: Convolution 2D, image (N, 24, 32, 1) input
-simple=True
-gTowerEt, offlineRho = get_data(args.file, flattened_input=simple)
-model = baseline_model(simple)
-history=model.fit(gTowerEt, offlineRho, epochs=100, batch_size=1024, verbose=2)
+if __name__ == "__main__":
+  import argparse
+  parser = argparse.ArgumentParser(description='Run ML model')
+  parser.add_argument('file', type=str, help='File to process', default='input.hdf5')
 
-"""use a regressor instead?
-clf = KerasRegressor(build_fn=baseline_model, epochs=100, batch_size=1024, verbose=2)
-history = clf.fit(gTowerEt, offlineRho)
-"""
+  args = parser.parse_args()
+
+  # Simple: Dense layers, flattened (N, -1) input
+  # Non-Simple: Convolution 2D, image (N, 1, 24, 32) input
+  simple=False
+  gTowerEt, offlineRho = get_data(args.file, flattened_input=simple)
+  model = baseline_model(simple)
+  history=model.fit(gTowerEt[:-10000], offlineRho[:-10000], validation_data=(gTowerEt[-10000:], offlineRho[-10000:]), epochs=100, batch_size=512, verbose=2)
+  model.save('model.hd5')
 
 """training example?
 N_max = 200
