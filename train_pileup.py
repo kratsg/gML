@@ -8,33 +8,25 @@ import os
 # os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 from keras.models import Sequential
-from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten
+from keras.layers import Dense, Conv2D, MaxPooling2D, Dropout, Flatten, BatchNormalization
 
-def baseline_model(simple=True):
+def baseline_model():
   model = Sequential()
-  if simple:
-    model.add(Dense(32*24, input_dim=32*24, activation='relu', kernel_initializer='normal'))
-    model.add(Dense(256, activation='relu', kernel_initializer='normal'))
-  else:
-    model.add(Conv2D(32, (3, 3), input_shape=(24, 32, 1), activation='relu'))
-    model.add(MaxPooling2D(pool_size=(2, 2)))
-    model.add(Dropout(0.2))
-    model.add(Flatten())
-    model.add(Dense(32, activation='relu'))
+  model.add(Conv2D(32, (3, 3), input_shape=(24, 32, 1), activation='relu'))
+  model.add(BatchNormalization())
 
   # output is always size 1, add this last layer always
+  model.add(Flatten())
   model.add(Dense(1, activation='linear', kernel_initializer='normal'))
   model.compile(loss='mse', optimizer='adam', metrics=['accuracy'])
   model.summary()
   return model
 
-def get_data(filename, flattened_input=True, normalize=True):
+def get_data(filename, normalize=True):
   data = h5py.File(filename, 'r')
 
   # 24 eta rows and 32 phi columns
   gTowerEt = data['gTowerEt'][:].reshape(-1, 24, 32, 1)
-  if flattened_input:
-    gTowerEt = gTowerEt.reshape(-1, 24*32)
   offlineRho = data['offlineRho'][:]
 
   if normalize:
@@ -54,9 +46,8 @@ if __name__ == "__main__":
 
   # Simple: Dense layers, flattened (N, -1) input
   # Non-Simple: Convolution 2D, image (N, 1, 24, 32) input
-  simple=False
-  gTowerEt, offlineRho = get_data(args.file, flattened_input=simple)
-  model = baseline_model(simple)
+  gTowerEt, offlineRho = get_data(args.file)
+  model = baseline_model()
   history=model.fit(gTowerEt[:-10000], offlineRho[:-10000], validation_data=(gTowerEt[-10000:], offlineRho[-10000:]), epochs=100, batch_size=512, verbose=2)
   model.save('model.hd5')
 
